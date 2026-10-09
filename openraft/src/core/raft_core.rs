@@ -87,6 +87,7 @@ use crate::runtime::RaftRuntime;
 use crate::storage::LogFlushed;
 use crate::storage::RaftLogReaderExt;
 use crate::storage::RaftLogStorage;
+use crate::storage::RaftLogStorageExt;
 use crate::storage::RaftStateMachine;
 use crate::type_config::alias::InstantOf;
 use crate::type_config::alias::ResponderOf;
@@ -1646,7 +1647,7 @@ where
                 }
             }
             Command::SaveVote { vote } => {
-                self.log_store.save_vote(&vote).await?;
+                self.log_store.blocking_save_vote(&vote).await?;
                 self.engine.state.io_state_mut().update_vote(vote.clone());
 
                 let _ = self.tx_notify.send(Notify::VoteResponse {

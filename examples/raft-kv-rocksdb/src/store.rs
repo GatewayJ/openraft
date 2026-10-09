@@ -426,9 +426,15 @@ impl RaftLogStorage<TypeConfig> for LogStore {
         Ok(c)
     }
 
-    #[tracing::instrument(level = "trace", skip(self))]
-    async fn save_vote(&mut self, vote: &Vote<NodeId>) -> Result<(), StorageError<NodeId>> {
-        self.set_vote_(vote)
+    #[tracing::instrument(level = "trace", skip(self, callback))]
+    async fn save_vote(
+        &mut self,
+        vote: &Vote<NodeId>,
+        callback: LogFlushed<TypeConfig>,
+    ) -> Result<(), StorageError<NodeId>> {
+        self.set_vote_(vote)?;
+        callback.log_io_completed(Ok(()));
+        Ok(())
     }
 
     async fn read_vote(&mut self) -> Result<Option<Vote<NodeId>>, StorageError<NodeId>> {

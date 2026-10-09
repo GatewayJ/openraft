@@ -3,7 +3,6 @@ use std::time::Duration;
 
 use anyhow::Result;
 use maplit::btreeset;
-use openraft::storage::RaftLogStorage;
 use openraft::storage::RaftLogStorageExt;
 use openraft::testing::blank_ent;
 use openraft::testing::membership_ent;
@@ -35,7 +34,7 @@ async fn elect_compare_last_log() -> Result<()> {
 
     tracing::info!("--- fake store: sto0: last log: 2,1");
     {
-        sto0.save_vote(&Vote::new(10, 0)).await?;
+        sto0.blocking_save_vote(&Vote::new(10, 0)).await?;
 
         sto0.blocking_append([
             //
@@ -47,7 +46,7 @@ async fn elect_compare_last_log() -> Result<()> {
 
     tracing::info!("--- fake store: sto1: last log: 1,2");
     {
-        sto1.save_vote(&Vote::new(10, 0)).await?;
+        sto1.blocking_save_vote(&Vote::new(10, 0)).await?;
 
         sto1.blocking_append([
             blank_ent(0, 0, 0),

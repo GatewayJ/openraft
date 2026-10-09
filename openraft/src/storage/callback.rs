@@ -11,7 +11,7 @@ use crate::LogId;
 use crate::RaftTypeConfig;
 use crate::StorageIOError;
 
-/// A oneshot callback for completion of log io operation.
+/// A oneshot callback for completion of log or vote persistence.
 pub struct LogFlushed<C>
 where C: RaftTypeConfig
 {
@@ -31,7 +31,7 @@ where C: RaftTypeConfig
 
     /// Report log io completion event.
     ///
-    /// It will be called when the log is successfully appended to the storage or an error occurs.
+    /// Call after the log or vote is durable, or with the persistence error.
     pub fn log_io_completed(self, result: Result<(), io::Error>) {
         let res = if let Err(e) = result {
             tracing::error!("LogFlush error: {}, while flushing upto {}", e, self.log_io_id);

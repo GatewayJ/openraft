@@ -311,10 +311,15 @@ impl RaftLogStorage<TypeConfig> for Rc<LogStore> {
         Ok(*committed)
     }
 
-    #[tracing::instrument(level = "trace", skip(self))]
-    async fn save_vote(&mut self, vote: &Vote<NodeId>) -> Result<(), StorageError<NodeId>> {
+    #[tracing::instrument(level = "trace", skip(self, callback))]
+    async fn save_vote(
+        &mut self,
+        vote: &Vote<NodeId>,
+        callback: LogFlushed<TypeConfig>,
+    ) -> Result<(), StorageError<NodeId>> {
         let mut v = self.vote.borrow_mut();
         *v = Some(*vote);
+        callback.log_io_completed(Ok(()));
         Ok(())
     }
 

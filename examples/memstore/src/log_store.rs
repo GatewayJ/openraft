@@ -84,8 +84,13 @@ impl<C: RaftTypeConfig> LogStoreInner<C> {
         Ok(self.committed.clone())
     }
 
-    async fn save_vote(&mut self, vote: &Vote<C::NodeId>) -> Result<(), StorageError<C::NodeId>> {
+    async fn save_vote(
+        &mut self,
+        vote: &Vote<C::NodeId>,
+        callback: LogFlushed<C>,
+    ) -> Result<(), StorageError<C::NodeId>> {
         self.vote = Some(vote.clone());
+        callback.log_io_completed(Ok(()));
         Ok(())
     }
 
@@ -178,9 +183,13 @@ mod impl_log_store {
             inner.read_committed().await
         }
 
-        async fn save_vote(&mut self, vote: &Vote<C::NodeId>) -> Result<(), StorageError<C::NodeId>> {
+        async fn save_vote(
+            &mut self,
+            vote: &Vote<C::NodeId>,
+            callback: LogFlushed<C>,
+        ) -> Result<(), StorageError<C::NodeId>> {
             let mut inner = self.inner.lock().await;
-            inner.save_vote(vote).await
+            inner.save_vote(vote, callback).await
         }
 
         async fn read_vote(&mut self) -> Result<Option<Vote<C::NodeId>>, StorageError<C::NodeId>> {

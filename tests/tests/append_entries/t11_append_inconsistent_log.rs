@@ -4,7 +4,6 @@ use std::time::Duration;
 use anyhow::Result;
 use maplit::btreeset;
 use openraft::storage::RaftLogReaderExt;
-use openraft::storage::RaftLogStorage;
 use openraft::storage::RaftLogStorageExt;
 use openraft::testing::blank_ent;
 use openraft::Config;
@@ -61,8 +60,8 @@ async fn append_inconsistent_log() -> Result<()> {
         sto2.blocking_append([blank_ent(3, 3, i)]).await?;
     }
 
-    sto0.save_vote(&Vote::new(4, 1)).await?;
-    sto2.save_vote(&Vote::new(3, 3)).await?;
+    sto0.blocking_save_vote(&Vote::new(4, 1)).await?;
+    sto2.blocking_save_vote(&Vote::new(3, 3)).await?;
 
     log_index = 100;
 

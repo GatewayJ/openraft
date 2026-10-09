@@ -16,6 +16,7 @@ use crate::storage::LogFlushed;
 use crate::storage::LogState;
 use crate::storage::RaftLogReaderExt;
 use crate::storage::RaftLogStorage;
+use crate::storage::RaftLogStorageExt;
 use crate::storage::RaftStateMachine;
 use crate::storage::StorageHelper;
 use crate::testing::StoreBuilder;
@@ -692,7 +693,7 @@ where
     }
 
     pub async fn save_vote(mut store: LS, mut sm: SM) -> Result<(), StorageError<C::NodeId>> {
-        store.save_vote(&Vote::new(100, NODE_ID.into())).await?;
+        store.blocking_save_vote(&Vote::new(100, NODE_ID.into())).await?;
 
         let got = store.read_vote().await?;
 
@@ -1226,7 +1227,7 @@ where
     }
 
     pub async fn default_vote(sto: &mut LS) -> Result<(), StorageError<C::NodeId>> {
-        sto.save_vote(&Vote::new(1, NODE_ID.into())).await?;
+        sto.blocking_save_vote(&Vote::new(1, NODE_ID.into())).await?;
 
         Ok(())
     }

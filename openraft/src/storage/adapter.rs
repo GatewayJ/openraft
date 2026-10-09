@@ -127,8 +127,14 @@ where
         S::get_log_state(self.storage_mut().await.deref_mut()).await
     }
 
-    async fn save_vote(&mut self, vote: &Vote<C::NodeId>) -> Result<(), StorageError<C::NodeId>> {
-        S::save_vote(self.storage_mut().await.deref_mut(), vote).await
+    async fn save_vote(
+        &mut self,
+        vote: &Vote<C::NodeId>,
+        callback: LogFlushed<C>,
+    ) -> Result<(), StorageError<C::NodeId>> {
+        S::save_vote(self.storage_mut().await.deref_mut(), vote).await?;
+        callback.log_io_completed(Ok(()));
+        Ok(())
     }
 
     async fn read_vote(&mut self) -> Result<Option<Vote<C::NodeId>>, StorageError<C::NodeId>> {
